@@ -13,15 +13,10 @@ st.set_page_config(
     layout="wide"
 )
 
-st.title("🏥 PRI-UTI")
-st.markdown(
-    """
-### Sistema Inteligente de Priorização para Admissão em UTI
+# ... todo o código da aplicação ...
 
-**Desenvolvido por Anderson José Alves**
----
-"""
-)
+st.markdown("---")
+st.caption("PRI-UTI v1.0 • Desenvolvido por Anderson José Alves")
 
 if "caso" not in st.session_state:
     st.session_state.caso = ""
