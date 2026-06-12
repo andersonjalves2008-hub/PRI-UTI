@@ -14,7 +14,14 @@ st.set_page_config(
 )
 
 st.title("🏥 PRI-UTI")
-st.subheader("Sistema Inteligente de Priorização para Admissão em UTI")
+st.markdown(
+    """
+### Sistema Inteligente de Priorização para Admissão em UTI
+
+**Desenvolvido por Anderson José Alves**
+---
+"""
+)
 
 if "caso" not in st.session_state:
     st.session_state.caso = ""
