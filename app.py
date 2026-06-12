@@ -13,7 +13,8 @@ st.set_page_config(
     layout="wide"
 )
 
-# ... todo o código da aplicação ...
+st.title("🏥 PRI-UTI")
+st.subheader("Sistema Inteligente de Priorização para Admissão em UTI")
 
 st.markdown("---")
 st.caption("PRI-UTI v1.0 • Desenvolvido por Anderson José Alves")
