@@ -22,9 +22,9 @@ st.caption("PRI-UTI v1.0 • Desenvolvido por Anderson José Alves")
 if "caso" not in st.session_state:
     st.session_state.caso = ""
 
-def limpar():
-    st.session_state.caso = ""
-    st.session_state.resposta = ""
+if st.button("🧹 LIMPAR"):
+    st.session_state.clear()
+    st.rerun()
 
 caso = st.text_area(
     "Cole a evolução clínica:",
