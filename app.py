@@ -176,4 +176,4 @@ if st.session_state.resposta:
     st.success(st.session_state.resposta)
 
     if st.session_state.modelo_usado:
-        st.caption(f"Modelo utilizado: {st.session_state.modelo_usado}")
+    st.caption("Análise concluída.")
