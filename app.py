@@ -58,7 +58,14 @@ if analisar:
             st.session_state.resposta = resposta.text
 
         except Exception as e:
-            st.error(f"Erro ao analisar o caso: {e}")
+    erro = str(e)
+
+    if "429" in erro or "RESOURCE_EXHAUSTED" in erro:
+        st.warning(
+            "⏳ Limite temporário atingido. Aguarde aproximadamente 1 minuto e clique em LIMPAR para reiniciar a aplicação."
+        )
+    else:
+        st.error(f"Erro ao analisar o caso: {erro}")
 
 if "resposta" in st.session_state and st.session_state.resposta:
     st.success(st.session_state.resposta)
