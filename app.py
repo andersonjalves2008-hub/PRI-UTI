@@ -38,27 +38,96 @@ def limpar():
         del st.session_state[key]
     st.rerun()
 
+
 def carregar_prompt():
     with open("prompts/priorizacao.txt", "r", encoding="utf-8") as f:
         return f.read()
 
+
 def erro_de_cota(erro):
-    texto = str(erro)
+    texto = str(erro).lower()
     return (
-        "RESOURCE_EXHAUSTED" in texto
+        "resource_exhausted" in texto
         or "429" in texto
-        or "Quota exceeded" in texto
-        or "rate limit" in texto.lower()
+        or "quota exceeded" in texto
+        or "rate limit" in texto
+        or "exceeded your current quota" in texto
     )
+
+
+def listar_modelos_disponiveis():
+    modelos = []
+
+    try:
+        for model in client.models.list():
+            nome = getattr(model, "name", "")
+
+            if not nome:
+                continue
+
+            nome = nome.replace("models/", "")
+
+            # Evita modelos que geralmente não servem para texto clínico
+            ignorar = [
+                "embedding",
+                "imagen",
+                "veo",
+                "aqa",
+                "tts",
+                "native-audio",
+                "live",
+                "preview-image"
+            ]
+
+            if any(x in nome.lower() for x in ignorar):
+                continue
+
+            modelos.append(nome)
+
+    except Exception:
+        modelos = []
+
+    prioridade = [
+        "gemini-2.5-pro",
+        "gemini-2.5-flash",
+        "gemini-2.5-flash-lite",
+        "gemini-2.0-flash",
+        "gemini-2.0-flash-lite",
+        "gemini-1.5-pro",
+        "gemini-1.5-flash",
+        "gemini-1.5-flash-8b"
+    ]
+
+    modelos_ordenados = []
+
+    for m in prioridade:
+        if m in modelos:
+            modelos_ordenados.append(m)
+
+    for m in modelos:
+        if m not in modelos_ordenados:
+            modelos_ordenados.append(m)
+
+    return modelos_ordenados
+
 
 def analisar_caso(caso):
     prompt_sistema = carregar_prompt()
     prompt_final = f"{prompt_sistema}\n\nCASO CLÍNICO:\n{caso}"
 
-    modelos = [
-        "gemini-2.5-flash",
-        "gemini-2.5-flash-lite"
-    ]
+    modelos = listar_modelos_disponiveis()
+
+    if not modelos:
+        modelos = [
+            "gemini-2.5-pro",
+            "gemini-2.5-flash",
+            "gemini-2.5-flash-lite",
+            "gemini-2.0-flash",
+            "gemini-2.0-flash-lite",
+            "gemini-1.5-pro",
+            "gemini-1.5-flash",
+            "gemini-1.5-flash-8b"
+        ]
 
     ultimo_erro = None
 
@@ -69,17 +138,17 @@ def analisar_caso(caso):
                 contents=prompt_final
             )
 
-            return resposta.text, modelo
+            texto = getattr(resposta, "text", "")
+
+            if texto and texto.strip():
+                return texto.strip()
 
         except Exception as e:
             ultimo_erro = e
+            continue
 
-            if erro_de_cota(e):
-                continue
-            else:
-                raise e
+    raise ultimo_erro if ultimo_erro else Exception("Nenhum modelo disponível retornou resposta válida.")
 
-    raise ultimo_erro
 
 # =========================
 # ESTADO DA SESSÃO
@@ -91,8 +160,6 @@ if "caso" not in st.session_state:
 if "resposta" not in st.session_state:
     st.session_state.resposta = ""
 
-if "modelo_usado" not in st.session_state:
-    st.session_state.modelo_usado = ""
 
 # =========================
 # INTERFACE
@@ -117,23 +184,22 @@ with col1:
 with col2:
     st.button("🧹 LIMPAR", use_container_width=True, on_click=limpar)
 
+
 # =========================
 # ANÁLISE
 # =========================
 
 if analisar:
     st.session_state.resposta = ""
-    st.session_state.modelo_usado = ""
 
     if not caso.strip():
         st.warning("Cole um caso clínico antes de analisar.")
     else:
         try:
             with st.spinner("Analisando caso..."):
-                resposta, modelo_usado = analisar_caso(caso)
+                resposta = analisar_caso(caso)
 
             st.session_state.resposta = resposta
-            st.session_state.modelo_usado = modelo_usado
 
         except Exception as e:
             erro = str(e)
@@ -153,7 +219,7 @@ if analisar:
                     "Verifique se a pasta prompts está no GitHub."
                 )
 
-            elif "API key" in erro or "GEMINI_API_KEY" in erro or "permission" in erro.lower():
+            elif "api key" in erro.lower() or "gemini_api_key" in erro.lower() or "permission" in erro.lower():
                 st.error(
                     "❌ Problema na chave da API Gemini. "
                     "Verifique se GEMINI_API_KEY está correta nos Secrets do Streamlit."
@@ -168,12 +234,11 @@ if analisar:
                 with st.expander("Mostrar erro técnico"):
                     st.code(erro)
 
+
 # =========================
 # RESULTADO
 # =========================
 
 if st.session_state.resposta:
     st.success(st.session_state.resposta)
-
-    if st.session_state.modelo_usado:
     st.caption("Análise concluída.")
