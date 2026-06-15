@@ -602,7 +602,7 @@ with col_caso:
 
 
 with col_resultado:
-    st.markdown("###🏥 CLASSIFICAÇÃO PRI-UTI")
+    st.markdown("🏥 CLASSIFICAÇÃO PRI-UTI")
 
     resultado_area = st.container()
 
