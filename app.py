@@ -1,7 +1,9 @@
 import os
+import re
 import streamlit as st
 from dotenv import load_dotenv
 from google import genai
+from google.genai import types
 
 # =========================
 # CONFIGURAÇÃO INICIAL
@@ -55,99 +57,123 @@ def erro_de_cota(erro):
     )
 
 
-def listar_modelos_disponiveis():
-    modelos = []
+def extrair_retry_delay(erro):
+    texto = str(erro)
 
-    try:
-        for model in client.models.list():
-            nome = getattr(model, "name", "")
+    match = re.search(r"retryDelay['\"]?: ['\"]?(\d+)s", texto)
+    if match:
+        return int(match.group(1))
 
-            if not nome:
-                continue
+    match = re.search(r"Please retry in ([\d\.]+)s", texto)
+    if match:
+        return int(float(match.group(1)))
 
-            nome = nome.replace("models/", "")
+    return None
 
-            # Evita modelos que geralmente não servem para texto clínico
-            ignorar = [
-                "embedding",
-                "imagen",
-                "veo",
-                "aqa",
-                "tts",
-                "native-audio",
-                "live",
-                "preview-image"
-            ]
 
-            if any(x in nome.lower() for x in ignorar):
-                continue
+def validar_resposta(texto):
+    if not texto:
+        return False
 
-            modelos.append(nome)
+    texto_upper = texto.upper()
 
-    except Exception:
-        modelos = []
+    if "PRIORIDADE:" not in texto_upper:
+        return False
 
-    prioridade = [
-        "gemini-2.5-pro",
-        "gemini-2.5-flash",
-        "gemini-2.5-flash-lite",
-        "gemini-2.0-flash",
-        "gemini-2.0-flash-lite",
-        "gemini-1.5-pro",
-        "gemini-1.5-flash",
-        "gemini-1.5-flash-8b"
-    ]
+    if "JUSTIFICATIVA:" not in texto_upper:
+        return False
 
-    modelos_ordenados = []
+    prioridades_validas = ["P1", "P2", "P3", "P4", "P5"]
 
-    for m in prioridade:
-        if m in modelos:
-            modelos_ordenados.append(m)
+    return any(p in texto_upper for p in prioridades_validas)
 
-    for m in modelos:
-        if m not in modelos_ordenados:
-            modelos_ordenados.append(m)
 
-    return modelos_ordenados
+def padronizar_resposta(texto):
+    texto = texto.strip()
+
+    # Remove markdown excessivo
+    texto = texto.replace("**", "")
+    texto = texto.replace("```", "")
+
+    return texto.strip()
 
 
 def analisar_caso(caso):
     prompt_sistema = carregar_prompt()
-    prompt_final = f"{prompt_sistema}\n\nCASO CLÍNICO:\n{caso}"
 
-    modelos = listar_modelos_disponiveis()
+    prompt_final = f"""
+{prompt_sistema}
 
-    if not modelos:
-        modelos = [
-            "gemini-2.5-pro",
-            "gemini-2.5-flash",
-            "gemini-2.5-flash-lite",
-            "gemini-2.0-flash",
-            "gemini-2.0-flash-lite",
-            "gemini-1.5-pro",
-            "gemini-1.5-flash",
-            "gemini-1.5-flash-8b"
-        ]
+CASO CLÍNICO:
+{caso}
 
+LEMBRE-SE:
+Responda exclusivamente no formato:
+
+PRIORIDADE: P_
+
+JUSTIFICATIVA:
+Máximo de 3 linhas.
+"""
+
+    modelos = [
+        "gemini-2.5-flash",
+        "gemini-2.5-flash-lite",
+        "gemini-2.5-pro",
+        "gemini-2.0-flash",
+        "gemini-2.0-flash-lite"
+    ]
+
+    erros_cota = []
     ultimo_erro = None
 
     for modelo in modelos:
         try:
             resposta = client.models.generate_content(
                 model=modelo,
-                contents=prompt_final
+                contents=prompt_final,
+                config=types.GenerateContentConfig(
+                    temperature=0,
+                    top_p=0.1,
+                    top_k=1,
+                    max_output_tokens=300
+                )
             )
 
             texto = getattr(resposta, "text", "")
 
-            if texto and texto.strip():
-                return texto.strip()
+            if not texto or not texto.strip():
+                ultimo_erro = Exception(f"Modelo {modelo} não retornou texto.")
+                continue
+
+            texto = padronizar_resposta(texto)
+
+            if validar_resposta(texto):
+                return texto, modelo
+
+            ultimo_erro = Exception(
+                f"Modelo {modelo} retornou resposta fora do formato esperado:\n\n{texto}"
+            )
+            continue
 
         except Exception as e:
             ultimo_erro = e
-            continue
 
-    raise ultimo_erro if ultimo_erro else Exception("Nenhum modelo disponível retornou resposta válida.")
+            if erro_de_cota(e):
+                segundos = extrair_retry_delay(e)
+                if segundos:
+                    erros_cota.append(f"{modelo}: cota atingida. Tentar novamente em {segundos}s.")
+                else:
+                    erros_cota.append(f"{modelo}: cota atingida.")
+                continue
+
+            # Se não for erro de cota, não troca de modelo: mostra o erro real.
+            raise e
+
+    if erros_cota:
+        raise Exception("\n".join(erros_cota))
+
+    raise ultimo_erro if ultimo_erro else Exception("Nenhum modelo retornou resposta válida.")
 
 
 # =========================
@@ -159,6 +185,9 @@ if "caso" not in st.session_state:
 
 if "resposta" not in st.session_state:
     st.session_state.resposta = ""
+
+if "modelo_usado" not in st.session_state:
+    st.session_state.modelo_usado = ""
 
 
 # =========================
@@ -191,15 +220,18 @@ with col2:
 
 if analisar:
     st.session_state.resposta = ""
+    st.session_state.modelo_usado = ""
 
     if not caso.strip():
         st.warning("Cole um caso clínico antes de analisar.")
+
     else:
         try:
             with st.spinner("Analisando caso..."):
-                resposta = analisar_caso(caso)
+                resposta, modelo_usado = analisar_caso(caso)
 
             st.session_state.resposta = resposta
+            st.session_state.modelo_usado = modelo_usado
 
         except Exception as e:
             erro = str(e)
@@ -219,7 +251,12 @@ if analisar:
                     "Verifique se a pasta prompts está no GitHub."
                 )
 
-            elif "api key" in erro.lower() or "gemini_api_key" in erro.lower() or "permission" in erro.lower():
+            elif (
+                "api key" in erro.lower()
+                or "gemini_api_key" in erro.lower()
+                or "permission" in erro.lower()
+                or "unauthorized" in erro.lower()
+            ):
                 st.error(
                     "❌ Problema na chave da API Gemini. "
                     "Verifique se GEMINI_API_KEY está correta nos Secrets do Streamlit."
