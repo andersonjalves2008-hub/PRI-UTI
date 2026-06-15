@@ -112,12 +112,18 @@ def validar_resposta(texto):
     if not tem_justificativa:
         return False
 
-    parte_justificativa = texto.split("JUSTIFICATIVA:", 1)[-1].strip()
+    justificativa = texto.split("JUSTIFICATIVA:", 1)[-1].strip()
 
-    justificativa_preenchida = len(parte_justificativa) >= 15
+    if len(justificativa) < 40:
+        return False
 
-    return tem_prioridade and tem_justificativa and justificativa_preenchida
+    if justificativa.endswith("(") or justificativa.endswith(",") or justificativa.endswith(":"):
+        return False
 
+    if justificativa.count("(") != justificativa.count(")"):
+        return False
+
+    return tem_prioridade and tem_justificativa
 
 def montar_prompt_final(prompt_sistema, caso):
     return f"""
@@ -129,10 +135,9 @@ CASO CLÍNICO:
 INSTRUÇÃO FINAL OBRIGATÓRIA:
 Responda exatamente neste formato, sem texto adicional:
 
-PRIORIDADE: P1, P2, P3, P4 ou P5
+PRIORIDADE: P_
 
-JUSTIFICATIVA:
-Escreva obrigatoriamente uma justificativa objetiva em até 3 linhas, baseada apenas nos dados do caso.
+JUSTIFICATIVA: Escreva uma justificativa completa, objetiva, em até 3 linhas, sem deixar frases incompletas ou parênteses abertos.
 """
 
 
@@ -144,7 +149,7 @@ def chamar_modelo(modelo, prompt_final):
             temperature=0,
             top_p=0.1,
             top_k=1,
-            max_output_tokens=500
+            max_output_tokens=1000
         )
     )
 
