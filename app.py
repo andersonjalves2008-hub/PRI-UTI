@@ -309,26 +309,38 @@ st.markdown(
 
 st.markdown("<hr style='margin-top:2px; margin-bottom:8px;'>", unsafe_allow_html=True)
 
-caso = st.text_area(
-    "Cole a evolução clínica:",
-    height=350,
-    key="caso"
-)
+col_caso, col_resultado = st.columns([1.15, 1])
 
-col1, col2 = st.columns(2)
-
-with col1:
-    analisar = st.button(
-        "🔍 ANALISAR",
-        use_container_width=True
+with col_caso:
+    caso = st.text_area(
+        "Cole a evolução clínica:",
+        height=420,
+        key="caso"
     )
 
-with col2:
-    st.button(
-        "🧹 LIMPAR",
-        use_container_width=True,
-        on_click=limpar
-    )
+    botao1, botao2 = st.columns(2)
+
+    with botao1:
+        analisar = st.button(
+            "🔍 ANALISAR",
+            use_container_width=True
+        )
+
+    with botao2:
+        st.button(
+            "🧹 LIMPAR",
+            use_container_width=True,
+            on_click=limpar
+        )
+
+with col_resultado:
+    st.markdown("### Resultado")
+
+    if st.session_state.resposta:
+        st.success(st.session_state.resposta)
+        st.caption("Análise concluída.")
+    else:
+        st.info("O resultado da análise aparecerá aqui.")
 
 
 # =========================================================
@@ -349,24 +361,27 @@ if analisar:
 
             st.session_state.resposta = resposta
             st.session_state.modelo_usado = modelo_usado
+            st.rerun()
 
         except Exception as e:
             erro = str(e)
 
             if erro_de_cota(e):
-                st.warning(
-                    "⏳ Limite temporário ou diário da API Gemini atingido nos modelos disponíveis. "
-                    "Aguarde a renovação da cota ou habilite faturamento no Google AI Studio."
-                )
+                with col_resultado:
+                    st.warning(
+                        "⏳ Limite temporário ou diário da API Gemini atingido nos modelos disponíveis. "
+                        "Aguarde a renovação da cota ou habilite faturamento no Google AI Studio."
+                    )
 
-                with st.expander("Mostrar erro técnico"):
-                    st.code(erro)
+                    with st.expander("Mostrar erro técnico"):
+                        st.code(erro)
 
             elif "priorizacao.txt" in erro:
-                st.error(
-                    "❌ Arquivo prompts/priorizacao.txt não encontrado. "
-                    "Verifique se a pasta prompts está no GitHub."
-                )
+                with col_resultado:
+                    st.error(
+                        "❌ Arquivo prompts/priorizacao.txt não encontrado. "
+                        "Verifique se a pasta prompts está no GitHub."
+                    )
 
             elif (
                 "api key" in erro.lower()
@@ -374,25 +389,18 @@ if analisar:
                 or "permission" in erro.lower()
                 or "unauthorized" in erro.lower()
             ):
-                st.error(
-                    "❌ Problema na chave da API Gemini. "
-                    "Verifique se GEMINI_API_KEY está correta nos Secrets do Streamlit."
-                )
+                with col_resultado:
+                    st.error(
+                        "❌ Problema na chave da API Gemini. "
+                        "Verifique se GEMINI_API_KEY está correta nos Secrets do Streamlit."
+                    )
 
-                with st.expander("Mostrar erro técnico"):
-                    st.code(erro)
+                    with st.expander("Mostrar erro técnico"):
+                        st.code(erro)
 
             else:
-                st.error("❌ Ocorreu um erro inesperado.")
+                with col_resultado:
+                    st.error("❌ Ocorreu um erro inesperado.")
 
-                with st.expander("Mostrar erro técnico"):
-                    st.code(erro)
-
-
-# =========================================================
-# RESULTADO
-# =========================================================
-
-if st.session_state.resposta:
-    st.success(st.session_state.resposta)
-    st.caption("Análise concluída.")
+                    with st.expander("Mostrar erro técnico"):
+                        st.code(erro)
