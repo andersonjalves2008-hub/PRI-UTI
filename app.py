@@ -343,10 +343,16 @@ with col_resultado:
 
     if st.session_state.resposta:
 
-        resposta_formatada = (
+        resposta_html = (
             st.session_state.resposta
-            .replace("PRIORIDADE:", "PRIORIDADE:")
-            .replace("JUSTIFICATIVA:", "\nJUSTIFICATIVA:")
+            .replace(
+                "PRIORIDADE:",
+                "<div style='font-size:32px;font-weight:700;margin-bottom:18px;'>PRIORIDADE:"
+            )
+            .replace(
+                "JUSTIFICATIVA:",
+                "</div><div style='font-size:22px;font-weight:700;margin-bottom:10px;'>JUSTIFICATIVA:</div>"
+            )
         )
 
         st.markdown(
@@ -354,17 +360,32 @@ with col_resultado:
 <div style="
 border:1px solid #3b82f6;
 border-radius:10px;
-padding:14px 16px;
+padding:12px 18px;
 min-height:420px;
 background-color:rgba(59,130,246,0.05);
-font-size:17px;
-line-height:1.6;
+overflow:hidden;
+">
+
+<div style="
+margin:0;
+padding:0;
+display:flex;
+flex-direction:column;
+justify-content:flex-start;
+align-items:flex-start;
+height:100%;
+font-size:19px;
+line-height:1.8;
 white-space:pre-wrap;
 ">
-{resposta_formatada}
+
+{resposta_html}
+
+</div>
+
 </div>
 """,
-            unsafe_allow_html=True
+            unsafe_allow_html=True,
         )
 
         st.caption(
@@ -378,18 +399,21 @@ white-space:pre-wrap;
 <div style="
 border:1px solid #444;
 border-radius:10px;
-padding:14px 16px;
+padding:12px 18px;
 min-height:420px;
 background-color:rgba(120,120,120,0.05);
+display:flex;
+align-items:flex-start;
+justify-content:flex-start;
+font-size:19px;
 color:gray;
-font-size:17px;
-line-height:1.6;
-white-space:pre-wrap;
 ">
+
 O resultado da análise aparecerá aqui.
+
 </div>
 """,
-            unsafe_allow_html=True
+            unsafe_allow_html=True,
         )
 
 # =========================================================
