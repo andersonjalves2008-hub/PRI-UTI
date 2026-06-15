@@ -16,6 +16,7 @@ Avalie obrigatoriamente:
 
 P1:
 Paciente crítico e instável, com necessidade imediata de suporte intensivo avançado e alto benefício esperado.
+P1 exige necessidade atual de suporte intensivo avançado associada a elevado benefício esperado da terapia intensiva. A gravidade fisiológica isoladamente não é suficiente quando o prognóstico global ou a reversibilidade são limitados.
 Inclui: ventilação mecânica invasiva, VNI por insuficiência respiratória aguda, choque, droga vasoativa, pós-PCR, estado de mal epiléptico, hipertensão intracraniana grave, acidose grave, hipercalemia grave ou risco iminente de morte com necessidade imediata de intervenção intensiva.
 
 P2:
@@ -24,6 +25,7 @@ Inclui: sepse com disfunção orgânica sem choque, pneumonia grave sem VM/VNI, 
 
 P3:
 Paciente grave, com necessidade atual ou potencial de cuidados intensivos, porém com benefício reduzido por prognóstico reservado, baixa reversibilidade, doença avançada, limitação terapêutica parcial, fragilidade extrema ou baixa expectativa de recuperação funcional.
+Pacientes com necessidade de suporte intensivo avançado podem ser corretamente classificados como P3 quando apresentarem baixa reversibilidade, fragilidade extrema ou benefício esperado reduzido da terapia intensiva.
 
 P4:
 Paciente estável, com necessidade predominante de monitorização, baixa probabilidade de intervenção intensiva imediata ou possibilidade de cuidado seguro em unidade intermediária, sala de emergência, recuperação anestésica ou enfermaria monitorizada.
@@ -45,6 +47,18 @@ REGRAS:
 - Doença terminal com cuidados exclusivamente paliativos é P5.
 - Não invente informações ausentes.
 - Não sugira tratamento, internação, alta, transferência ou condutas.
+
+REGRAS DE HIERARQUIA DECISÓRIA
+
+Quando houver conflito entre a gravidade aguda e o benefício esperado da terapia intensiva, deve prevalecer o benefício esperado e a adequada alocação do recurso UTI.
+
+A presença isolada de insuficiência respiratória grave, injúria renal aguda, sepse ou necessidade de oxigenoterapia de alto fluxo não determina obrigatoriamente classificação P1.
+
+Pacientes com demência avançada, fragilidade importante, dependência funcional prévia, doença neurodegenerativa incapacitante, neoplasia avançada sem perspectiva de tratamento modificador ou outras condições de baixa reversibilidade devem ter seu benefício esperado cuidadosamente ponderado.
+
+Nesses casos, mesmo diante de disfunções orgânicas graves, a classificação P3 pode ser mais apropriada quando o potencial de recuperação funcional for reduzido.
+
+A classificação final deve reproduzir o raciocínio de um médico intensivista responsável pela regulação de leitos de UTI, priorizando o benefício esperado da internação e a justiça distributiva na utilização de um recurso escasso.
 
 FORMATO OBRIGATÓRIO:
 
