@@ -3,6 +3,7 @@ import re
 import time
 import html
 import streamlit as st
+import streamlit.components.v1 as components
 from dotenv import load_dotenv
 from google import genai
 from google.genai import types
