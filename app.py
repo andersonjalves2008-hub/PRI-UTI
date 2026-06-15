@@ -5,11 +5,13 @@ from dotenv import load_dotenv
 from google import genai
 from google.genai import types
 
-# =========================
+
+# =========================================================
 # CONFIGURAÇÃO INICIAL
-# =========================
+# =========================================================
 
 load_dotenv()
+
 
 def get_api_key():
     try:
@@ -17,13 +19,16 @@ def get_api_key():
     except Exception:
         return os.getenv("GEMINI_API_KEY")
 
+
 api_key = get_api_key()
 
 if not api_key:
     st.error("❌ GEMINI_API_KEY não encontrada. Configure no .env ou nos Secrets do Streamlit.")
     st.stop()
 
+
 client = genai.Client(api_key=api_key)
+
 
 st.set_page_config(
     page_title="PRI-UTI",
@@ -31,9 +36,10 @@ st.set_page_config(
     layout="wide"
 )
 
-# =========================
-# FUNÇÕES
-# =========================
+
+# =========================================================
+# FUNÇÕES AUXILIARES
+# =========================================================
 
 def limpar():
     for key in list(st.session_state.keys()):
@@ -42,12 +48,18 @@ def limpar():
 
 
 def carregar_prompt():
-    with open("prompts/priorizacao.txt", "r", encoding="utf-8") as f:
+    caminho = "prompts/priorizacao.txt"
+
+    if not os.path.exists(caminho):
+        raise FileNotFoundError("Arquivo prompts/priorizacao.txt não encontrado.")
+
+    with open(caminho, "r", encoding="utf-8") as f:
         return f.read()
 
 
 def erro_de_cota(erro):
     texto = str(erro).lower()
+
     return (
         "resource_exhausted" in texto
         or "429" in texto
@@ -71,6 +83,17 @@ def extrair_retry_delay(erro):
     return None
 
 
+def padronizar_resposta(texto):
+    if not texto:
+        return ""
+
+    texto = texto.strip()
+    texto = texto.replace("**", "")
+    texto = texto.replace("```", "")
+    texto = texto.replace("`", "")
+    return texto.strip()
+
+
 def validar_resposta(texto):
     if not texto:
         return False
@@ -79,32 +102,25 @@ def validar_resposta(texto):
 
     prioridades_validas = ["P1", "P2", "P3", "P4", "P5"]
 
-    tem_prioridade = "PRIORIDADE:" in texto_upper and any(p in texto_upper for p in prioridades_validas)
+    tem_prioridade = (
+        "PRIORIDADE:" in texto_upper
+        and any(p in texto_upper for p in prioridades_validas)
+    )
+
     tem_justificativa = "JUSTIFICATIVA:" in texto_upper
 
-    # Garante que existe texto após JUSTIFICATIVA:
-    if tem_justificativa:
-        parte_justificativa = texto_upper.split("JUSTIFICATIVA:", 1)[1].strip()
-        justificativa_preenchida = len(parte_justificativa) > 10
-    else:
-        justificativa_preenchida = False
+    if not tem_justificativa:
+        return False
+
+    parte_justificativa = texto.split("JUSTIFICATIVA:", 1)[-1].strip()
+
+    justificativa_preenchida = len(parte_justificativa) >= 15
 
     return tem_prioridade and tem_justificativa and justificativa_preenchida
 
-def padronizar_resposta(texto):
-    texto = texto.strip()
 
-    # Remove markdown excessivo
-    texto = texto.replace("**", "")
-    texto = texto.replace("```", "")
-
-    return texto.strip()
-
-
-def analisar_caso(caso):
-    prompt_sistema = carregar_prompt()
-
-        prompt_final = f"""
+def montar_prompt_final(prompt_sistema, caso):
+    return f"""
 {prompt_sistema}
 
 CASO CLÍNICO:
@@ -119,6 +135,27 @@ JUSTIFICATIVA:
 Escreva obrigatoriamente uma justificativa objetiva em até 3 linhas, baseada apenas nos dados do caso.
 """
 
+
+def chamar_modelo(modelo, prompt_final):
+    resposta = client.models.generate_content(
+        model=modelo,
+        contents=prompt_final,
+        config=types.GenerateContentConfig(
+            temperature=0,
+            top_p=0.1,
+            top_k=1,
+            max_output_tokens=500
+        )
+    )
+
+    texto = getattr(resposta, "text", "")
+    return padronizar_resposta(texto)
+
+
+def analisar_caso(caso):
+    prompt_sistema = carregar_prompt()
+    prompt_final = montar_prompt_final(prompt_sistema, caso)
+
     modelos = [
         "gemini-2.5-flash",
         "gemini-2.5-flash-lite",
@@ -132,24 +169,7 @@ Escreva obrigatoriamente uma justificativa objetiva em até 3 linhas, baseada ap
 
     for modelo in modelos:
         try:
-            resposta = client.models.generate_content(
-                model=modelo,
-                contents=prompt_final,
-                config=types.GenerateContentConfig(
-                    temperature=0,
-                    top_p=0.1,
-                    top_k=1,
-                    max_output_tokens=500
-                )
-            )
-
-            texto = getattr(resposta, "text", "")
-
-            if not texto or not texto.strip():
-                ultimo_erro = Exception(f"Modelo {modelo} não retornou texto.")
-                continue
-
-            texto = padronizar_resposta(texto)
+            texto = chamar_modelo(modelo, prompt_final)
 
             if validar_resposta(texto):
                 return texto, modelo
@@ -157,20 +177,24 @@ Escreva obrigatoriamente uma justificativa objetiva em até 3 linhas, baseada ap
             ultimo_erro = Exception(
                 f"Modelo {modelo} retornou resposta fora do formato esperado:\n\n{texto}"
             )
-            continue
 
         except Exception as e:
             ultimo_erro = e
 
             if erro_de_cota(e):
                 segundos = extrair_retry_delay(e)
+
                 if segundos:
-                    erros_cota.append(f"{modelo}: cota atingida. Tentar novamente em {segundos}s.")
+                    erros_cota.append(
+                        f"{modelo}: cota atingida. Tentar novamente em {segundos}s."
+                    )
                 else:
-                    erros_cota.append(f"{modelo}: cota atingida.")
+                    erros_cota.append(
+                        f"{modelo}: cota atingida."
+                    )
+
                 continue
 
-            # Se não for erro de cota, não troca de modelo: mostra o erro real.
             raise e
 
     if erros_cota:
@@ -179,9 +203,9 @@ Escreva obrigatoriamente uma justificativa objetiva em até 3 linhas, baseada ap
     raise ultimo_erro if ultimo_erro else Exception("Nenhum modelo retornou resposta válida.")
 
 
-# =========================
+# =========================================================
 # ESTADO DA SESSÃO
-# =========================
+# =========================================================
 
 if "caso" not in st.session_state:
     st.session_state.caso = ""
@@ -193,14 +217,15 @@ if "modelo_usado" not in st.session_state:
     st.session_state.modelo_usado = ""
 
 
-# =========================
+# =========================================================
 # INTERFACE
-# =========================
+# =========================================================
 
 st.title("🏥 PRI-UTI")
 st.subheader("Sistema Inteligente de Priorização para Admissão em UTI")
-st.caption("PRI-UTI v2.0 • Desenvolvido por Anderson José Alves - Qualimed")
+st.caption("PRI-UTI v1.0 • Desenvolvido por Anderson José Alves - Qualimed")
 st.divider()
+
 
 caso = st.text_area(
     "Cole a evolução clínica:",
@@ -208,18 +233,26 @@ caso = st.text_area(
     key="caso"
 )
 
+
 col1, col2 = st.columns(2)
 
 with col1:
-    analisar = st.button("🔍 ANALISAR", use_container_width=True)
+    analisar = st.button(
+        "🔍 ANALISAR",
+        use_container_width=True
+    )
 
 with col2:
-    st.button("🧹 LIMPAR", use_container_width=True, on_click=limpar)
+    st.button(
+        "🧹 LIMPAR",
+        use_container_width=True,
+        on_click=limpar
+    )
 
 
-# =========================
+# =========================================================
 # ANÁLISE
-# =========================
+# =========================================================
 
 if analisar:
     st.session_state.resposta = ""
@@ -275,9 +308,9 @@ if analisar:
                     st.code(erro)
 
 
-# =========================
+# =========================================================
 # RESULTADO
-# =========================
+# =========================================================
 
 if st.session_state.resposta:
     st.success(st.session_state.resposta)
