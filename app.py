@@ -312,7 +312,6 @@ st.markdown("<hr style='margin-top:2px; margin-bottom:8px;'>", unsafe_allow_html
 col_caso, col_resultado = st.columns([1.15, 1])
 
 with col_caso:
-
     st.markdown("### Digite ou cole a evolução clínica")
 
     caso = st.text_area(
@@ -338,22 +337,23 @@ with col_caso:
         )
 
 with col_resultado:
-
     st.markdown("### Resultado")
 
     if st.session_state.resposta:
+        resposta_limpa = st.session_state.resposta.strip()
 
-        resposta_html = (
-            st.session_state.resposta
-            .replace(
-                "PRIORIDADE:",
-                "resposta_html = f"""
-<div style='font-size:32px;font-weight:700;margin:0 0 14px 0;'>{prioridade}</div>
-<div style='font-size:22px;font-weight:700;margin:0 0 2px 0;'>JUSTIFICATIVA:</div>
+        if "JUSTIFICATIVA:" in resposta_limpa:
+            prioridade = resposta_limpa.split("JUSTIFICATIVA:", 1)[0].strip()
+            justificativa = resposta_limpa.split("JUSTIFICATIVA:", 1)[1].strip()
+        else:
+            prioridade = resposta_limpa
+            justificativa = ""
+
+        resposta_html = f"""
+<div style='font-size:32px;font-weight:700;margin:0 0 10px 0;'>{prioridade}</div>
+<div style='font-size:22px;font-weight:700;margin:0 0 0px 0;'>JUSTIFICATIVA:</div>
 <div style='font-size:19px;line-height:1.7;margin:0;padding:0;'>{justificativa}</div>
-""""
-)
-        )
+"""
 
         st.markdown(
             f"""
@@ -361,28 +361,11 @@ with col_resultado:
 border:1px solid #3b82f6;
 border-radius:10px;
 padding:12px 18px;
-min-height:420px;
+min-height:300px;
 background-color:rgba(59,130,246,0.05);
 overflow:hidden;
 ">
-
-<div style="
-margin:0;
-padding:0;
-display:flex;
-flex-direction:column;
-justify-content:flex-start;
-align-items:flex-start;
-height:100%;
-font-size:19px;
-line-height:1.8;
-white-space:pre-wrap;
-">
-
 {resposta_html}
-
-</div>
-
 </div>
 """,
             unsafe_allow_html=True,
@@ -393,14 +376,13 @@ white-space:pre-wrap;
         )
 
     else:
-
         st.markdown(
             """
 <div style="
 border:1px solid #444;
 border-radius:10px;
 padding:12px 18px;
-min-height:420px;
+min-height:300px;
 background-color:rgba(120,120,120,0.05);
 display:flex;
 align-items:flex-start;
@@ -408,9 +390,7 @@ justify-content:flex-start;
 font-size:19px;
 color:gray;
 ">
-
 O resultado da análise aparecerá aqui.
-
 </div>
 """,
             unsafe_allow_html=True,
