@@ -448,11 +448,13 @@ def renderizar_resultado(resposta):
             }}
 
             .pri-card {{
+                box-sizing: border-box;
                 border: 1px solid #3b82f6;
                 border-radius: 12px;
                 padding: 18px 20px;
-                min-height: 263px;
+                height: 300px;
                 background-color: rgba(59,130,246,0.06);
+                overflow: hidden;
             }}
 
             .pri-badge {{
@@ -496,30 +498,9 @@ def renderizar_resultado(resposta):
     </html>
     """
 
-    components.html(bloco_html, height=300, scrolling=False)
-def renderizar_processamento():
-    etapas = [
-        "🔍 Interpretando evolução clínica...",
-        "⚕️ Aplicando critérios do protocolo...",
-        "📊 Classificando prioridade...",
-        "✅ Gerando justificativa..."
-    ]
+    components.html(bloco_html, height=305, scrolling=False)
 
-    placeholder = st.empty()
-
-    for etapa in etapas:
-        placeholder.markdown(
-            f"""
-<div class="processing-box">
-    <div class="processing-title">Analisando caso clínico</div>
-    <div>{etapa}</div>
-</div>
-""",
-            unsafe_allow_html=True
-        )
-        time.sleep(0.35)
-
-
+   
 # =========================================================
 # ESTADO DA SESSÃO
 # =========================================================
@@ -582,7 +563,10 @@ with col_caso:
 
 
 with col_resultado:
-    st.markdown("### 🏥 CLASSIFICAÇÃO PRI-UTI")
+    if st.session_state.get("analisando", False):
+        st.markdown("### 🏥 CLASSIFICAÇÃO PRI-UTI <span style='font-size:14px; color:#94a3b8;'>Analisando caso...</span>", unsafe_allow_html=True)
+    else:
+        st.markdown("### 🏥 CLASSIFICAÇÃO PRI-UTI", unsafe_allow_html=True)
 
     resultado_area = st.container()
 
@@ -619,19 +603,19 @@ if analisar:
 
     else:
         try:
-            with col_resultado:
-                st.markdown("### Resultado")
-                renderizar_processamento()
+            st.session_state.analisando = True
 
             resposta, modelo_usado = analisar_caso(caso)
 
             st.session_state.resposta = resposta
             st.session_state.modelo_usado = modelo_usado
             st.session_state.erro_app = ""
+            st.session_state.analisando = False
 
             st.rerun()
 
         except Exception as e:
+            st.session_state.analisando = False
             erro = str(e)
 
             if erro_de_cota(e):
