@@ -502,7 +502,6 @@ def renderizar_resultado(resposta):
 
     <body>
         <div class="pri-card">
-            <div class="pri-header">🏥 CLASSIFICAÇÃO PRI-UTI</div>
             <div class="pri-divider"></div>
 
             <div class="pri-badge">
@@ -603,7 +602,7 @@ with col_caso:
 
 
 with col_resultado:
-    st.markdown("### Resultado")
+    st.markdown("###🏥 CLASSIFICAÇÃO PRI-UTI")
 
     resultado_area = st.container()
 
