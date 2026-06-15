@@ -349,7 +349,7 @@ with col_resultado:
                 border:1px solid #3b82f6;
                 border-radius:10px;
                 padding:18px;
-                min-height:420px;
+                min-height:300px;
                 background-color:rgba(59,130,246,0.05);
                 font-size:18px;
                 line-height:1.7;
@@ -373,7 +373,7 @@ with col_resultado:
                 border:1px solid #444;
                 border-radius:10px;
                 padding:18px;
-                min-height:420px;
+                min-height:300px;
                 background-color:rgba(120,120,120,0.05);
                 display:flex;
                 align-items:center;
