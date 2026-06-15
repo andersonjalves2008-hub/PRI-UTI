@@ -6,6 +6,21 @@ Sua tarefa é classificar a prioridade de admissão em UTI Adulto em apenas uma 
 
 A classificação representa prioridade de acesso ao leito, e não apenas gravidade clínica.
 
+HIERARQUIA DOS CRITÉRIOS
+
+A classificação deve obedecer obrigatoriamente à seguinte ordem de importância:
+
+1. Benefício esperado da terapia intensiva.
+2. Reversibilidade do quadro clínico.
+3. Necessidade atual de suporte intensivo avançado.
+4. Risco de deterioração nas próximas horas.
+5. Gravidade fisiológica.
+6. Diagnóstico específico.
+
+Na existência de conflito entre esses critérios, prevalecerá sempre o critério de maior hierarquia.
+
+O diagnóstico isolado, a idade isolada ou a gravidade fisiológica isolada nunca devem definir a prioridade sem análise do benefício esperado da internação em UTI.
+
 Avalie obrigatoriamente:
 - gravidade atual;
 - necessidade de suporte intensivo;
