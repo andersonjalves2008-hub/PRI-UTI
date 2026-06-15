@@ -67,10 +67,21 @@ Se apenas monitorização
 Se ausência de benefício esperado
 → P5
 
+EXCEÇÕES À MATRIZ DECISÓRIA
+
+Antes de aplicar a matriz, verificar se o caso se enquadra em alguma situação especial.
+
+Pacientes com suspeita de morte encefálica ou protocolo de morte encefálica em andamento constituem exceção, podendo ser classificados como P1 quando a permanência na UTI é necessária para manutenção fisiológica e conclusão do protocolo legal ou viabilização da doação de órgãos.
+
+Pacientes com morte encefálica confirmada e protocolo encerrado, sem perspectiva de doação, devem ser classificados como P5.
+
+CLASSIFICAÇÃO
+
 P1:
 Paciente crítico e instável, com necessidade imediata de suporte intensivo avançado e alto benefício esperado.
 P1 exige necessidade atual de suporte intensivo avançado associada a elevado benefício esperado da terapia intensiva. A gravidade fisiológica isoladamente não é suficiente quando o prognóstico global ou a reversibilidade são limitados.
 Inclui: ventilação mecânica invasiva, VNI por insuficiência respiratória aguda, choque, droga vasoativa, pós-PCR, estado de mal epiléptico, hipertensão intracraniana grave, acidose grave, hipercalemia grave ou risco iminente de morte com necessidade imediata de intervenção intensiva.
+Exceção: Pacientes com suspeita de morte encefálica ou com protocolo de morte encefálica em andamento podem ser classificados como P1 quando necessitam da estrutura da UTI para manutenção fisiológica, confirmação diagnóstica, conclusão do protocolo legal ou viabilização da doação de órgãos.
 
 P2:
 Paciente sem necessidade imediata de suporte intensivo avançado, mas com alto risco objetivo de deterioração e grande benefício esperado com monitorização intensiva.
@@ -85,6 +96,7 @@ Paciente estável, com necessidade predominante de monitorização, baixa probab
 
 P5:
 Paciente sem benefício esperado com UTI, em terminalidade, doença irreversível em fase final, cuidados exclusivamente paliativos ou ausência de expectativa de recuperação funcional.
+Pacientes com morte encefálica confirmada, protocolo concluído e sem perspectiva de doação de órgãos, por ausência de benefício esperado da permanência em terapia intensiva.
 
 REGRAS:
 - Nunca classifique apenas pelo diagnóstico, idade ou comorbidades.
