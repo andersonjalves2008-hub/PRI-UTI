@@ -29,7 +29,6 @@ if not api_key:
 
 client = genai.Client(api_key=api_key)
 
-
 st.set_page_config(
     page_title="PRI-UTI",
     page_icon="🏥",
@@ -42,8 +41,12 @@ st.set_page_config(
 # =========================================================
 
 def limpar():
+    st.cache_data.clear()
+    st.cache_resource.clear()
+
     for key in list(st.session_state.keys()):
         del st.session_state[key]
+
     st.rerun()
 
 
@@ -83,6 +86,26 @@ def extrair_retry_delay(erro):
     return None
 
 
+def extrair_texto_resposta(resposta):
+    texto = ""
+
+    try:
+        if hasattr(resposta, "candidates") and resposta.candidates:
+            for candidate in resposta.candidates:
+                if hasattr(candidate, "content") and candidate.content:
+                    if hasattr(candidate.content, "parts") and candidate.content.parts:
+                        for part in candidate.content.parts:
+                            if hasattr(part, "text") and part.text:
+                                texto += part.text
+    except Exception:
+        texto = ""
+
+    if not texto:
+        texto = getattr(resposta, "text", "")
+
+    return texto
+
+
 def padronizar_resposta(texto):
     if not texto:
         return ""
@@ -91,6 +114,8 @@ def padronizar_resposta(texto):
     texto = texto.replace("**", "")
     texto = texto.replace("```", "")
     texto = texto.replace("`", "")
+    texto = texto.replace("...", "")
+    texto = texto.replace("…", "")
     return texto.strip()
 
 
@@ -109,21 +134,30 @@ def validar_resposta(texto):
 
     tem_justificativa = "JUSTIFICATIVA:" in texto_upper
 
-    if not tem_justificativa:
+    if not tem_prioridade or not tem_justificativa:
         return False
 
     justificativa = texto.split("JUSTIFICATIVA:", 1)[-1].strip()
 
-    if len(justificativa) < 40:
+    if len(justificativa) < 80:
         return False
 
-    if justificativa.endswith("(") or justificativa.endswith(",") or justificativa.endswith(":"):
+    finais_invalidos = ("(", ",", ":", ";", "-", " e", " de", " com", " por", " em")
+
+    if justificativa.endswith(finais_invalidos):
+        return False
+
+    if justificativa.endswith("...") or justificativa.endswith("…"):
         return False
 
     if justificativa.count("(") != justificativa.count(")"):
         return False
 
-    return tem_prioridade and tem_justificativa
+    if not justificativa.endswith("."):
+        return False
+
+    return True
+
 
 def montar_prompt_final(prompt_sistema, caso):
     return f"""
@@ -137,7 +171,15 @@ Responda exatamente neste formato, sem texto adicional:
 
 PRIORIDADE: P_
 
-JUSTIFICATIVA: Escreva uma justificativa completa, objetiva, em até 3 linhas, sem deixar frases incompletas ou parênteses abertos.
+JUSTIFICATIVA:
+Escreva uma justificativa completa, objetiva, em até 3 linhas, baseada apenas nos dados apresentados.
+
+REGRAS FINAIS DA RESPOSTA:
+- Não deixe frases incompletas.
+- Não use reticências.
+- Não deixe parênteses abertos.
+- A justificativa deve terminar obrigatoriamente com ponto final.
+- A resposta só será válida se contiver PRIORIDADE e JUSTIFICATIVA completas.
 """
 
 
@@ -149,11 +191,11 @@ def chamar_modelo(modelo, prompt_final):
             temperature=0,
             top_p=0.1,
             top_k=1,
-            max_output_tokens=1000
+            max_output_tokens=1500
         )
     )
 
-    texto = getattr(resposta, "text", "")
+    texto = extrair_texto_resposta(resposta)
     return padronizar_resposta(texto)
 
 
@@ -173,34 +215,35 @@ def analisar_caso(caso):
     ultimo_erro = None
 
     for modelo in modelos:
-        try:
-            texto = chamar_modelo(modelo, prompt_final)
+        for tentativa in range(2):
+            try:
+                texto = chamar_modelo(modelo, prompt_final)
 
-            if validar_resposta(texto):
-                return texto, modelo
+                if validar_resposta(texto):
+                    return texto, modelo
 
-            ultimo_erro = Exception(
-                f"Modelo {modelo} retornou resposta fora do formato esperado:\n\n{texto}"
-            )
+                ultimo_erro = Exception(
+                    f"Modelo {modelo} retornou resposta incompleta ou fora do formato esperado:\n\n{texto}"
+                )
 
-        except Exception as e:
-            ultimo_erro = e
+            except Exception as e:
+                ultimo_erro = e
 
-            if erro_de_cota(e):
-                segundos = extrair_retry_delay(e)
+                if erro_de_cota(e):
+                    segundos = extrair_retry_delay(e)
 
-                if segundos:
-                    erros_cota.append(
-                        f"{modelo}: cota atingida. Tentar novamente em {segundos}s."
-                    )
-                else:
-                    erros_cota.append(
-                        f"{modelo}: cota atingida."
-                    )
+                    if segundos:
+                        erros_cota.append(
+                            f"{modelo}: cota atingida. Tentar novamente em {segundos}s."
+                        )
+                    else:
+                        erros_cota.append(
+                            f"{modelo}: cota atingida."
+                        )
 
-                continue
+                    break
 
-            raise e
+                raise e
 
     if erros_cota:
         raise Exception("\n".join(erros_cota))
@@ -231,13 +274,11 @@ st.subheader("Sistema Inteligente de Priorização para Admissão em UTI")
 st.caption("PRI-UTI v1.0 • Desenvolvido por Anderson José Alves - Qualimed")
 st.divider()
 
-
 caso = st.text_area(
     "Cole a evolução clínica:",
     height=350,
     key="caso"
 )
-
 
 col1, col2 = st.columns(2)
 
