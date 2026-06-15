@@ -313,7 +313,7 @@ col_caso, col_resultado = st.columns([1.15, 1])
 
 with col_caso:
 
-    st.markdown("### Cole a evolução clínica")
+    st.markdown("### Digite ou cole a evolução clínica")
 
     caso = st.text_area(
         label="",
