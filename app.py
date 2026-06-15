@@ -312,10 +312,14 @@ st.markdown("<hr style='margin-top:2px; margin-bottom:8px;'>", unsafe_allow_html
 col_caso, col_resultado = st.columns([1.15, 1])
 
 with col_caso:
+
+    st.markdown("### Cole a evolução clínica")
+
     caso = st.text_area(
-        "Cole a evolução clínica:",
+        label="",
         height=420,
-        key="caso"
+        key="caso",
+        label_visibility="collapsed"
     )
 
     botao1, botao2 = st.columns(2)
@@ -334,13 +338,54 @@ with col_caso:
         )
 
 with col_resultado:
+
     st.markdown("### Resultado")
 
     if st.session_state.resposta:
-        st.success(st.session_state.resposta)
-        st.caption("Análise concluída.")
+
+        st.markdown(
+            f"""
+            <div style="
+                border:1px solid #3b82f6;
+                border-radius:10px;
+                padding:18px;
+                min-height:420px;
+                background-color:rgba(59,130,246,0.05);
+                font-size:18px;
+                line-height:1.7;
+                white-space:pre-wrap;
+            ">
+            {st.session_state.resposta}
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
+
+        st.caption(
+            f"Análise concluída • Modelo utilizado: {st.session_state.modelo_usado}"
+        )
+
     else:
-        st.info("O resultado da análise aparecerá aqui.")
+
+        st.markdown(
+            """
+            <div style="
+                border:1px solid #444;
+                border-radius:10px;
+                padding:18px;
+                min-height:420px;
+                background-color:rgba(120,120,120,0.05);
+                display:flex;
+                align-items:center;
+                justify-content:center;
+                color:gray;
+                font-size:18px;
+            ">
+                O resultado da análise aparecerá aqui.
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
 
 
 # =========================================================
