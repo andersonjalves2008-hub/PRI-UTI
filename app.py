@@ -394,31 +394,31 @@ def cor_prioridade(prioridade):
             "cor": "#ef4444",
             "fundo": "rgba(239,68,68,0.16)",
             "icone": "🔴",
-            "texto": "PRIORIDADE 1"
+            "texto": "PRIORIDADE"
         },
         "P2": {
             "cor": "#f97316",
             "fundo": "rgba(249,115,22,0.16)",
             "icone": "🟠",
-            "texto": "PRIORIDADE 2"
+            "texto": "PRIORIDADE"
         },
         "P3": {
             "cor": "#eab308",
             "fundo": "rgba(234,179,8,0.18)",
             "icone": "🟡",
-            "texto": "PRIORIDADE 3"
+            "texto": "PRIORIDADE"
         },
         "P4": {
             "cor": "#3b82f6",
             "fundo": "rgba(59,130,246,0.16)",
             "icone": "🔵",
-            "texto": "PRIORIDADE 4"
+            "texto": "PRIORIDADE"
         },
         "P5": {
             "cor": "#9ca3af",
             "fundo": "rgba(156,163,175,0.16)",
             "icone": "⚪",
-            "texto": "PRIORIDADE 5"
+            "texto": "PRIORIDADE"
         }
     }
 
