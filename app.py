@@ -347,11 +347,11 @@ with col_resultado:
             st.session_state.resposta
             .replace(
                 "PRIORIDADE:",
-                "<div style='font-size:32px;font-weight:700;margin-bottom:18px;'>PRIORIDADE:"
-            )
-            .replace(
-    "JUSTIFICATIVA:",
-    "</div><div style='font-size:22px;font-weight:700;margin-top:12px;margin-bottom:1px;'>JUSTIFICATIVA:</div>"
+                "resposta_html = f"""
+<div style='font-size:32px;font-weight:700;margin:0 0 14px 0;'>{prioridade}</div>
+<div style='font-size:22px;font-weight:700;margin:0 0 2px 0;'>JUSTIFICATIVA:</div>
+<div style='font-size:19px;line-height:1.7;margin:0;padding:0;'>{justificativa}</div>
+""""
 )
         )
 
