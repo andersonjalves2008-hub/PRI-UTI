@@ -14,6 +14,44 @@ Avalie obrigatoriamente:
 - proporcionalidade terapêutica;
 - benefício esperado da UTI.
 
+ETAPA 1
+Existe necessidade atual de suporte intensivo exclusivo da UTI?
+
+SIM ou NÃO.
+
+ETAPA 2
+Existe elevado benefício esperado da terapia intensiva?
+
+ALTO
+MODERADO
+BAIXO
+
+ETAPA 3
+Existe limitação terapêutica ou baixa reversibilidade?
+
+SIM ou NÃO.
+
+DECISÃO
+
+Se suporte intensivo = SIM
+e benefício = ALTO
+→ P1
+
+Se suporte intensivo = NÃO
+e risco de deterioração = SIM
+e benefício = ALTO
+→ P2
+
+Se benefício = BAIXO
+ou limitação terapêutica importante = SIM
+→ considerar P3, mesmo na presença de disfunção orgânica grave.
+
+Se apenas monitorização
+→ P4
+
+Se ausência de benefício esperado
+→ P5
+
 P1:
 Paciente crítico e instável, com necessidade imediata de suporte intensivo avançado e alto benefício esperado.
 P1 exige necessidade atual de suporte intensivo avançado associada a elevado benefício esperado da terapia intensiva. A gravidade fisiológica isoladamente não é suficiente quando o prognóstico global ou a reversibilidade são limitados.
