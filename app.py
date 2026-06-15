@@ -501,35 +501,6 @@ def renderizar_resultado(resposta):
 
     components.html(bloco_html, height=305, scrolling=False)
 
-def calcular_confianca(caso):
-
-    texto = caso.lower()
-
-    score = 0
-
-    palavras = [
-        "pa","fc","fr","sat","spo2","glasgow","gcs",
-        "lactato","creatinina","ph","vasoativa",
-        "norad","dobut","vm","iot","vni",
-        "choque","sepse","dialise"
-    ]
-
-    for p in palavras:
-        if p in texto:
-            score += 1
-
-    if score >= 8:
-        return "🟢 Muito alta"
-
-    elif score >= 5:
-        return "🟡 Alta"
-
-    elif score >= 3:
-        return "🟠 Moderada"
-
-    else:
-        return "🔴 Limitada"
-        
 # =========================================================
 # ESTADO DA SESSÃO
 # =========================================================
