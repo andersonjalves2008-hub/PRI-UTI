@@ -343,19 +343,28 @@ with col_resultado:
 
     if st.session_state.resposta:
 
+        resposta_html = (
+            st.session_state.resposta
+            .replace("PRIORIDADE:", "<strong style='font-size:24px;'>PRIORIDADE:</strong>")
+            .replace(
+                "JUSTIFICATIVA:",
+                "<br><br><strong style='font-size:20px;'>JUSTIFICATIVA:</strong>"
+            )
+        )
+
         st.markdown(
             f"""
             <div style="
                 border:1px solid #3b82f6;
                 border-radius:10px;
-                padding:18px;
+                padding:10px 18px 18px 18px;
                 min-height:300px;
                 background-color:rgba(59,130,246,0.05);
                 font-size:18px;
-                line-height:1.7;
+                line-height:1.8;
                 white-space:pre-wrap;
             ">
-            {st.session_state.resposta}
+            {resposta_html}
             </div>
             """,
             unsafe_allow_html=True
