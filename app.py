@@ -455,7 +455,7 @@ def renderizar_resultado(resposta):
                 border: 1px solid #3b82f6;
                 border-radius: 12px;
                 padding: 18px 20px;
-                min-height: 260px;
+                min-height: 263px;
                 background-color: rgba(59,130,246,0.06);
             }}
 
@@ -515,7 +515,7 @@ def renderizar_resultado(resposta):
     </html>
     """
 
-    components.html(bloco_html, height=330, scrolling=False)
+    components.html(bloco_html, height=300, scrolling=False)
 
 def renderizar_processamento():
     etapas = [
@@ -602,7 +602,7 @@ with col_caso:
 
 
 with col_resultado:
-    st.markdown("🏥 CLASSIFICAÇÃO PRI-UTI")
+    st.markdown("### 🏥 CLASSIFICAÇÃO PRI-UTI")
 
     resultado_area = st.container()
 
