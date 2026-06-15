@@ -121,12 +121,6 @@ label{
     margin-top:2px;
 }
 
-.pri-divider{
-    margin-top:10px;
-    margin-bottom:12px;
-    border-top:1px solid rgba(148,163,184,0.35);
-}
-
 .processing-box{
     border:1px solid #3b82f6;
     border-radius:12px;
@@ -467,12 +461,6 @@ def renderizar_resultado(resposta):
                 margin-bottom: 8px;
             }}
 
-            .pri-divider {{
-                margin-top: 8px;
-                margin-bottom: 12px;
-                border-top: 1px solid rgba(148,163,184,0.35);
-            }}
-
             .pri-badge {{
                 display: inline-block;
                 padding: 10px 18px;
@@ -502,8 +490,7 @@ def renderizar_resultado(resposta):
 
     <body>
         <div class="pri-card">
-            <div class="pri-divider"></div>
-
+          
             <div class="pri-badge">
                 {estilo['icone']} {estilo['texto']} — {prioridade_html}
             </div>
