@@ -77,16 +77,19 @@ def validar_resposta(texto):
 
     texto_upper = texto.upper()
 
-    if "PRIORIDADE:" not in texto_upper:
-        return False
-
-    if "JUSTIFICATIVA:" not in texto_upper:
-        return False
-
     prioridades_validas = ["P1", "P2", "P3", "P4", "P5"]
 
-    return any(p in texto_upper for p in prioridades_validas)
+    tem_prioridade = "PRIORIDADE:" in texto_upper and any(p in texto_upper for p in prioridades_validas)
+    tem_justificativa = "JUSTIFICATIVA:" in texto_upper
 
+    # Garante que existe texto após JUSTIFICATIVA:
+    if tem_justificativa:
+        parte_justificativa = texto_upper.split("JUSTIFICATIVA:", 1)[1].strip()
+        justificativa_preenchida = len(parte_justificativa) > 10
+    else:
+        justificativa_preenchida = False
+
+    return tem_prioridade and tem_justificativa and justificativa_preenchida
 
 def padronizar_resposta(texto):
     texto = texto.strip()
@@ -101,19 +104,19 @@ def padronizar_resposta(texto):
 def analisar_caso(caso):
     prompt_sistema = carregar_prompt()
 
-    prompt_final = f"""
+        prompt_final = f"""
 {prompt_sistema}
 
 CASO CLÍNICO:
 {caso}
 
-LEMBRE-SE:
-Responda exclusivamente no formato:
+INSTRUÇÃO FINAL OBRIGATÓRIA:
+Responda exatamente neste formato, sem texto adicional:
 
-PRIORIDADE: P_
+PRIORIDADE: P1, P2, P3, P4 ou P5
 
 JUSTIFICATIVA:
-Máximo de 3 linhas.
+Escreva obrigatoriamente uma justificativa objetiva em até 3 linhas, baseada apenas nos dados do caso.
 """
 
     modelos = [
@@ -136,7 +139,7 @@ Máximo de 3 linhas.
                     temperature=0,
                     top_p=0.1,
                     top_k=1,
-                    max_output_tokens=300
+                    max_output_tokens=500
                 )
             )
 
