@@ -69,12 +69,13 @@ label{
     margin-bottom:2px !important;
 }
 
-.pri-card{
-    border:1px solid #3b82f6;
+.pri-card {{
+    box-sizing:border-box;
+    border:2px solid {estilo['cor']};
     border-radius:12px;
     padding:18px 20px;
     min-height:300px;
-    background-color:rgba(59,130,246,0.06);
+    background-color:{estilo['fundo']};
     overflow:hidden;
 }
 
@@ -487,9 +488,9 @@ def renderizar_resultado(resposta):
 
     <body>
         <div class="pri-card">
-            <div class="pri-badge">
-                {estilo['icone']} {estilo['texto']} — {prioridade_html}
-            </div>
+           <div class="pri-badge">
+    {estilo['icone']} {estilo['texto']} • {prioridade_html}
+</div>
 
             <div class="pri-just-title">JUSTIFICATIVA</div>
             <div class="pri-just-text">{justificativa_html}</div>
@@ -500,7 +501,35 @@ def renderizar_resultado(resposta):
 
     components.html(bloco_html, height=305, scrolling=False)
 
-   
+def calcular_confianca(caso):
+
+    texto = caso.lower()
+
+    score = 0
+
+    palavras = [
+        "pa","fc","fr","sat","spo2","glasgow","gcs",
+        "lactato","creatinina","ph","vasoativa",
+        "norad","dobut","vm","iot","vni",
+        "choque","sepse","dialise"
+    ]
+
+    for p in palavras:
+        if p in texto:
+            score += 1
+
+    if score >= 8:
+        return "🟢 Muito alta"
+
+    elif score >= 5:
+        return "🟡 Alta"
+
+    elif score >= 3:
+        return "🟠 Moderada"
+
+    else:
+        return "🔴 Limitada"
+        
 # =========================================================
 # ESTADO DA SESSÃO
 # =========================================================
@@ -587,6 +616,23 @@ O resultado da análise aparecerá aqui.
                 unsafe_allow_html=True,
             )
 
+st.markdown(
+    f"""
+<div style="
+margin-top:8px;
+padding:8px 12px;
+border-radius:8px;
+background:rgba(255,255,255,0.03);
+font-size:15px;
+">
+
+<b>Confiança da classificação:</b>
+{calcular_confianca(st.session_state.caso)}
+
+</div>
+""",
+unsafe_allow_html=True
+)
 
 # =========================================================
 # ANÁLISE
