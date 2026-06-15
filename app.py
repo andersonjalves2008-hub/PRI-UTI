@@ -455,20 +455,13 @@ def renderizar_resultado(resposta):
                 background-color: rgba(59,130,246,0.06);
             }}
 
-            .pri-header {{
-                font-size: 17px;
-                color: #94a3b8;
-                font-weight: 700;
-                letter-spacing: 0.08em;
-                margin-bottom: 8px;
-            }}
-
             .pri-badge {{
                 display: inline-block;
-                padding: 10px 18px;
+                padding: 5px 12px;
                 border-radius: 999px;
-                font-size: 28px;
-                font-weight: 800;
+                font-size: 18px;
+                font-weight: 700;
+                line-height: 1.2;
                 margin-bottom: 12px;
                 color: {estilo['cor']};
                 background-color: {estilo['fundo']};
@@ -476,23 +469,22 @@ def renderizar_resultado(resposta):
             }}
 
             .pri-just-title {{
-                font-size: 21px;
-                font-weight: 800;
-                margin-top: 4px;
-                margin-bottom: 0px;
+                font-size: 18px;
+                font-weight: 700;
+                margin-top: 2px;
+                margin-bottom: 2px;
             }}
 
             .pri-just-text {{
-                font-size: 19px;
+                font-size: 18px;
                 line-height: 1.6;
-                margin-top: 2px;
+                margin-top: 0px;
             }}
         </style>
     </head>
 
     <body>
         <div class="pri-card">
-          
             <div class="pri-badge">
                 {estilo['icone']} {estilo['texto']} — {prioridade_html}
             </div>
@@ -505,7 +497,6 @@ def renderizar_resultado(resposta):
     """
 
     components.html(bloco_html, height=300, scrolling=False)
-
 def renderizar_processamento():
     etapas = [
         "🔍 Interpretando evolução clínica...",
