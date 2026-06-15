@@ -597,9 +597,6 @@ background:rgba(255,255,255,0.03);
 font-size:15px;
 ">
 
-<b>Confiança da classificação:</b>
-{calcular_confianca(st.session_state.caso)}
-
 </div>
 """,
 unsafe_allow_html=True
