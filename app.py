@@ -101,11 +101,11 @@ label{
 
 .pri-badge{
     display:inline-block;
-    padding:10px 18px;
+    padding:6px 16px;
     border-radius:999px;
-    font-size:30px;
+    font-size:21px;
     font-weight:800;
-    margin-bottom:14px;
+    margin-bottom:12px;
 }
 
 .pri-just-title{
