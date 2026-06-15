@@ -196,7 +196,7 @@ if "modelo_usado" not in st.session_state:
 
 st.title("🏥 PRI-UTI")
 st.subheader("Sistema Inteligente de Priorização para Admissão em UTI")
-st.caption("PRI-UTI v1.0 • Desenvolvido por Anderson José Alves - Qualimed")
+st.caption("PRI-UTI v2.0 • Desenvolvido por Anderson José Alves - Qualimed")
 st.divider()
 
 caso = st.text_area(
