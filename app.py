@@ -440,24 +440,82 @@ def renderizar_resultado(resposta):
     justificativa_html = html.escape(justificativa)
 
     bloco_html = f"""
-<div class="pri-card">
-    <div class="pri-header">🏥 CLASSIFICAÇÃO PRI-UTI</div>
-    <div class="pri-divider"></div>
+    <html>
+    <head>
+        <style>
+            body {{
+                margin: 0;
+                font-family: Arial, sans-serif;
+                color: white;
+                background-color: transparent;
+            }}
 
-    <div class="pri-badge" style="
-        color:{estilo['cor']};
-        background-color:{estilo['fundo']};
-        border:1px solid {estilo['cor']};
-    ">
-        {estilo['icone']} {estilo['texto']} — {prioridade_html}
-    </div>
+            .pri-card {{
+                border: 1px solid #3b82f6;
+                border-radius: 12px;
+                padding: 18px 20px;
+                min-height: 260px;
+                background-color: rgba(59,130,246,0.06);
+            }}
 
-    <div class="pri-just-title">JUSTIFICATIVA</div>
-    <div class="pri-just-text">{justificativa_html}</div>
-</div>
-"""
+            .pri-header {{
+                font-size: 17px;
+                color: #94a3b8;
+                font-weight: 700;
+                letter-spacing: 0.08em;
+                margin-bottom: 8px;
+            }}
 
-    st.markdown(bloco_html, unsafe_allow_html=True)
+            .pri-divider {{
+                margin-top: 8px;
+                margin-bottom: 12px;
+                border-top: 1px solid rgba(148,163,184,0.35);
+            }}
+
+            .pri-badge {{
+                display: inline-block;
+                padding: 10px 18px;
+                border-radius: 999px;
+                font-size: 28px;
+                font-weight: 800;
+                margin-bottom: 12px;
+                color: {estilo['cor']};
+                background-color: {estilo['fundo']};
+                border: 1px solid {estilo['cor']};
+            }}
+
+            .pri-just-title {{
+                font-size: 21px;
+                font-weight: 800;
+                margin-top: 4px;
+                margin-bottom: 0px;
+            }}
+
+            .pri-just-text {{
+                font-size: 19px;
+                line-height: 1.6;
+                margin-top: 2px;
+            }}
+        </style>
+    </head>
+
+    <body>
+        <div class="pri-card">
+            <div class="pri-header">🏥 CLASSIFICAÇÃO PRI-UTI</div>
+            <div class="pri-divider"></div>
+
+            <div class="pri-badge">
+                {estilo['icone']} {estilo['texto']} — {prioridade_html}
+            </div>
+
+            <div class="pri-just-title">JUSTIFICATIVA</div>
+            <div class="pri-just-text">{justificativa_html}</div>
+        </div>
+    </body>
+    </html>
+    """
+
+    components.html(bloco_html, height=330, scrolling=False)
 
 def renderizar_processamento():
     etapas = [
