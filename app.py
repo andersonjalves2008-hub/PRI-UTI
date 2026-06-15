@@ -35,36 +35,34 @@ st.set_page_config(
     layout="wide"
 )
 
-st.markdown(
-    """
-    <style>
-    .block-container {
-        padding-top: 0.8rem;
-        padding-bottom: 1rem;
-    }
+st.markdown("""
+<style>
 
-    h1 {
-        margin-top: 0rem;
-        margin-bottom: 0.5rem;
-    }
+.block-container{
+    padding-top:0.4rem;
+    padding-bottom:0rem;
+}
 
-    h2, h3 {
-        margin-top: 0.5rem;
-        margin-bottom: 0.5rem;
-    }
+h1{
+    margin-bottom:0rem;
+}
 
-    [data-testid="stCaptionContainer"] {
-        margin-bottom: 0.5rem;
-    }
+h2{
+    margin-top:0rem;
+    margin-bottom:0rem;
+}
 
-    hr {
-        margin-top: 0.8rem;
-        margin-bottom: 1rem;
-    }
-    </style>
-    """,
-    unsafe_allow_html=True
-)
+hr{
+    margin-top:2px !important;
+    margin-bottom:8px !important;
+}
+
+label{
+    margin-bottom:2px !important;
+}
+
+</style>
+""", unsafe_allow_html=True)
 
 # =========================================================
 # FUNÇÕES AUXILIARES
@@ -301,8 +299,15 @@ if "modelo_usado" not in st.session_state:
 
 st.title("🏥 PRI-UTI")
 st.subheader("Sistema Inteligente de Priorização para Admissão em UTI")
-st.caption("PRI-UTI v1.0 • Desenvolvido por Anderson José Alves - Qualimed")
-st.divider()
+
+st.markdown(
+    "<p style='font-size:13px; color:gray; margin-top:-12px; margin-bottom:4px;'>"
+    "PRI-UTI v1.0 • Desenvolvido por Anderson José Alves - Qualimed"
+    "</p>",
+    unsafe_allow_html=True,
+)
+
+st.markdown("<hr style='margin-top:2px; margin-bottom:8px;'>", unsafe_allow_html=True)
 
 caso = st.text_area(
     "Cole a evolução clínica:",
