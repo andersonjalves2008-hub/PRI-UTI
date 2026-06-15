@@ -35,6 +35,36 @@ st.set_page_config(
     layout="wide"
 )
 
+st.markdown(
+    """
+    <style>
+    .block-container {
+        padding-top: 1.2rem;
+        padding-bottom: 1rem;
+    }
+
+    h1 {
+        margin-top: 0rem;
+        margin-bottom: 0.5rem;
+    }
+
+    h2, h3 {
+        margin-top: 0.5rem;
+        margin-bottom: 0.5rem;
+    }
+
+    [data-testid="stCaptionContainer"] {
+        margin-bottom: 0.5rem;
+    }
+
+    hr {
+        margin-top: 0.8rem;
+        margin-bottom: 1rem;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True
+)
 
 # =========================================================
 # FUNÇÕES AUXILIARES
