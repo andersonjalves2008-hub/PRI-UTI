@@ -350,9 +350,9 @@ with col_resultado:
                 "<div style='font-size:32px;font-weight:700;margin-bottom:18px;'>PRIORIDADE:"
             )
             .replace(
-                "JUSTIFICATIVA:",
-                "</div><div style='font-size:22px;font-weight:700;margin-bottom:10px;'>JUSTIFICATIVA:</div>"
-            )
+    "JUSTIFICATIVA:",
+    "</div><div style='font-size:22px;font-weight:700;margin-top:12px;margin-bottom:1px;'>JUSTIFICATIVA:</div>"
+)
         )
 
         st.markdown(
