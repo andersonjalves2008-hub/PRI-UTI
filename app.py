@@ -101,24 +101,26 @@ label{
 
 .pri-badge{
     display:inline-block;
-    padding:6px 16px;
+    padding:4px 14px;
     border-radius:999px;
-    font-size:21px;
-    font-weight:800;
-    margin-bottom:12px;
+    font-size:18px;
+    font-weight:700;
+    margin-bottom:10px;
+    letter-spacing:0px;
+    line-height:1.2;
 }
 
 .pri-just-title{
-    font-size:21px;
-    font-weight:800;
-    margin-top:6px;
-    margin-bottom:0px;
+    font-size:18px;
+    font-weight:700;
+    margin-top:2px;
+    margin-bottom:2px;
 }
 
 .pri-just-text{
-    font-size:19px;
-    line-height:1.7;
-    margin-top:2px;
+    font-size:18px;
+    line-height:1.6;
+    margin-top:0px;
 }
 
 .processing-box{
