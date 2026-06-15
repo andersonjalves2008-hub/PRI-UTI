@@ -439,12 +439,9 @@ def renderizar_resultado(resposta):
     prioridade_html = html.escape(prioridade)
     justificativa_html = html.escape(justificativa)
 
-    st.markdown(
-        f"""
+    bloco_html = f"""
 <div class="pri-card">
-
     <div class="pri-header">🏥 CLASSIFICAÇÃO PRI-UTI</div>
-
     <div class="pri-divider"></div>
 
     <div class="pri-badge" style="
@@ -456,16 +453,11 @@ def renderizar_resultado(resposta):
     </div>
 
     <div class="pri-just-title">JUSTIFICATIVA</div>
-
-    <div class="pri-just-text">
-        {justificativa_html}
-    </div>
-
+    <div class="pri-just-text">{justificativa_html}</div>
 </div>
-""",
-        unsafe_allow_html=True
-    )
+"""
 
+    st.markdown(bloco_html, unsafe_allow_html=True)
 
 def renderizar_processamento():
     etapas = [
