@@ -576,7 +576,7 @@ st.markdown("<hr style='margin-top:2px; margin-bottom:8px;'>", unsafe_allow_html
 col_caso, col_resultado = st.columns([1.15, 1])
 
 with col_caso:
-    st.markdown("### Digite ou cole a evolução clínica")
+    st.markdown("### DIGITE OU COLE A EVOLUÇÃO CLÍNICA")
 
     caso = st.text_area(
         label="",
