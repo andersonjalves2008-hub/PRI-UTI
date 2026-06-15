@@ -1,5 +1,7 @@
 import os
 import re
+import time
+import html
 import streamlit as st
 from dotenv import load_dotenv
 from google import genai
@@ -35,6 +37,11 @@ st.set_page_config(
     layout="wide"
 )
 
+
+# =========================================================
+# CSS
+# =========================================================
+
 st.markdown("""
 <style>
 
@@ -61,8 +68,88 @@ label{
     margin-bottom:2px !important;
 }
 
+.pri-card{
+    border:1px solid #3b82f6;
+    border-radius:12px;
+    padding:18px 20px;
+    min-height:300px;
+    background-color:rgba(59,130,246,0.06);
+    overflow:hidden;
+}
+
+.pri-card-empty{
+    border:1px solid #444;
+    border-radius:12px;
+    padding:18px 20px;
+    min-height:300px;
+    background-color:rgba(120,120,120,0.05);
+    display:flex;
+    align-items:flex-start;
+    justify-content:flex-start;
+    font-size:19px;
+    color:gray;
+}
+
+.pri-header{
+    font-size:18px;
+    color:#94a3b8;
+    font-weight:700;
+    letter-spacing:0.08em;
+    margin-bottom:10px;
+}
+
+.pri-badge{
+    display:inline-block;
+    padding:10px 18px;
+    border-radius:999px;
+    font-size:30px;
+    font-weight:800;
+    margin-bottom:14px;
+}
+
+.pri-just-title{
+    font-size:21px;
+    font-weight:800;
+    margin-top:6px;
+    margin-bottom:0px;
+}
+
+.pri-just-text{
+    font-size:19px;
+    line-height:1.7;
+    margin-top:2px;
+}
+
+.pri-divider{
+    margin-top:10px;
+    margin-bottom:12px;
+    border-top:1px solid rgba(148,163,184,0.35);
+}
+
+.processing-box{
+    border:1px solid #3b82f6;
+    border-radius:12px;
+    padding:18px 20px;
+    min-height:300px;
+    background-color:rgba(59,130,246,0.06);
+    font-size:18px;
+    line-height:1.8;
+}
+
+.processing-title{
+    font-size:24px;
+    font-weight:800;
+    margin-bottom:12px;
+}
+
+.small-muted{
+    color:#94a3b8;
+    font-size:13px;
+}
+
 </style>
 """, unsafe_allow_html=True)
+
 
 # =========================================================
 # FUNÇÕES AUXILIARES
@@ -279,6 +366,130 @@ def analisar_caso(caso):
     raise ultimo_erro if ultimo_erro else Exception("Nenhum modelo retornou resposta válida.")
 
 
+def extrair_prioridade_justificativa(resposta):
+    resposta_limpa = resposta.strip()
+
+    prioridade = ""
+    justificativa = ""
+
+    match = re.search(r"PRIORIDADE:\s*(P[1-5])", resposta_limpa, re.IGNORECASE)
+
+    if match:
+        prioridade = match.group(1).upper()
+    else:
+        prioridade = "P?"
+
+    if "JUSTIFICATIVA:" in resposta_limpa:
+        justificativa = resposta_limpa.split("JUSTIFICATIVA:", 1)[1].strip()
+    else:
+        justificativa = resposta_limpa
+
+    return prioridade, justificativa
+
+
+def cor_prioridade(prioridade):
+    mapa = {
+        "P1": {
+            "cor": "#ef4444",
+            "fundo": "rgba(239,68,68,0.16)",
+            "icone": "🔴",
+            "texto": "PRIORIDADE 1"
+        },
+        "P2": {
+            "cor": "#f97316",
+            "fundo": "rgba(249,115,22,0.16)",
+            "icone": "🟠",
+            "texto": "PRIORIDADE 2"
+        },
+        "P3": {
+            "cor": "#eab308",
+            "fundo": "rgba(234,179,8,0.18)",
+            "icone": "🟡",
+            "texto": "PRIORIDADE 3"
+        },
+        "P4": {
+            "cor": "#3b82f6",
+            "fundo": "rgba(59,130,246,0.16)",
+            "icone": "🔵",
+            "texto": "PRIORIDADE 4"
+        },
+        "P5": {
+            "cor": "#9ca3af",
+            "fundo": "rgba(156,163,175,0.16)",
+            "icone": "⚪",
+            "texto": "PRIORIDADE 5"
+        }
+    }
+
+    return mapa.get(
+        prioridade,
+        {
+            "cor": "#9ca3af",
+            "fundo": "rgba(156,163,175,0.16)",
+            "icone": "⚪",
+            "texto": "PRIORIDADE"
+        }
+    )
+
+
+def renderizar_resultado(resposta):
+    prioridade, justificativa = extrair_prioridade_justificativa(resposta)
+    estilo = cor_prioridade(prioridade)
+
+    prioridade_html = html.escape(prioridade)
+    justificativa_html = html.escape(justificativa)
+
+    st.markdown(
+        f"""
+<div class="pri-card">
+
+    <div class="pri-header">🏥 CLASSIFICAÇÃO PRI-UTI</div>
+
+    <div class="pri-divider"></div>
+
+    <div class="pri-badge" style="
+        color:{estilo['cor']};
+        background-color:{estilo['fundo']};
+        border:1px solid {estilo['cor']};
+    ">
+        {estilo['icone']} {estilo['texto']} — {prioridade_html}
+    </div>
+
+    <div class="pri-just-title">JUSTIFICATIVA</div>
+
+    <div class="pri-just-text">
+        {justificativa_html}
+    </div>
+
+</div>
+""",
+        unsafe_allow_html=True
+    )
+
+
+def renderizar_processamento():
+    etapas = [
+        "🔍 Interpretando evolução clínica...",
+        "⚕️ Aplicando critérios do protocolo...",
+        "📊 Classificando prioridade...",
+        "✅ Gerando justificativa..."
+    ]
+
+    placeholder = st.empty()
+
+    for etapa in etapas:
+        placeholder.markdown(
+            f"""
+<div class="processing-box">
+    <div class="processing-title">Analisando caso clínico</div>
+    <div>{etapa}</div>
+</div>
+""",
+            unsafe_allow_html=True
+        )
+        time.sleep(0.35)
+
+
 # =========================================================
 # ESTADO DA SESSÃO
 # =========================================================
@@ -292,6 +503,9 @@ if "resposta" not in st.session_state:
 if "modelo_usado" not in st.session_state:
     st.session_state.modelo_usado = ""
 
+if "erro_app" not in st.session_state:
+    st.session_state.erro_app = ""
+
 
 # =========================================================
 # INTERFACE
@@ -302,7 +516,7 @@ st.subheader("Sistema Inteligente de Priorização para Admissão em UTI")
 
 st.markdown(
     "<p style='font-size:13px; color:gray; margin-top:-12px; margin-bottom:4px;'>"
-    "PRI-UTI v1.0 • Desenvolvido por Anderson José Alves - Qualimed"
+    "PRI-UTI v2.0 • Desenvolvido por Anderson José Alves - Qualimed"
     "</p>",
     unsafe_allow_html=True,
 )
@@ -336,65 +550,29 @@ with col_caso:
             on_click=limpar
         )
 
+
 with col_resultado:
     st.markdown("### Resultado")
 
-    if st.session_state.resposta:
-        resposta_limpa = st.session_state.resposta.strip()
+    resultado_area = st.container()
 
-        if "JUSTIFICATIVA:" in resposta_limpa:
-            prioridade = resposta_limpa.split("JUSTIFICATIVA:", 1)[0].strip()
-            justificativa = resposta_limpa.split("JUSTIFICATIVA:", 1)[1].strip()
+    with resultado_area:
+        if st.session_state.resposta:
+            renderizar_resultado(st.session_state.resposta)
+
+        elif st.session_state.erro_app:
+            st.error(st.session_state.erro_app)
+
         else:
-            prioridade = resposta_limpa
-            justificativa = ""
-
-        resposta_html = f"""
-<div style='font-size:32px;font-weight:700;margin:0 0 10px 0;'>{prioridade}</div>
-<div style='font-size:22px;font-weight:700;margin:0 0 0px 0;'>JUSTIFICATIVA:</div>
-<div style='font-size:19px;line-height:1.7;margin:0;padding:0;'>{justificativa}</div>
-"""
-
-        st.markdown(
-            f"""
-<div style="
-border:1px solid #3b82f6;
-border-radius:10px;
-padding:12px 18px;
-min-height:300px;
-background-color:rgba(59,130,246,0.05);
-overflow:hidden;
-">
-{resposta_html}
-</div>
-""",
-            unsafe_allow_html=True,
-        )
-
-        st.caption(
-            f"Análise concluída • Modelo utilizado: {st.session_state.modelo_usado}"
-        )
-
-    else:
-        st.markdown(
-            """
-<div style="
-border:1px solid #444;
-border-radius:10px;
-padding:12px 18px;
-min-height:300px;
-background-color:rgba(120,120,120,0.05);
-display:flex;
-align-items:flex-start;
-justify-content:flex-start;
-font-size:19px;
-color:gray;
-">
+            st.markdown(
+                """
+<div class="pri-card-empty">
 O resultado da análise aparecerá aqui.
 </div>
 """,
-            unsafe_allow_html=True,
-        )
+                unsafe_allow_html=True,
+            )
+
 
 # =========================================================
 # ANÁLISE
@@ -403,38 +581,40 @@ O resultado da análise aparecerá aqui.
 if analisar:
     st.session_state.resposta = ""
     st.session_state.modelo_usado = ""
+    st.session_state.erro_app = ""
 
     if not caso.strip():
-        st.warning("Cole um caso clínico antes de analisar.")
+        st.session_state.erro_app = "Cole um caso clínico antes de analisar."
+        st.rerun()
 
     else:
         try:
-            with st.spinner("Analisando caso..."):
-                resposta, modelo_usado = analisar_caso(caso)
+            with col_resultado:
+                st.markdown("### Resultado")
+                renderizar_processamento()
+
+            resposta, modelo_usado = analisar_caso(caso)
 
             st.session_state.resposta = resposta
             st.session_state.modelo_usado = modelo_usado
+            st.session_state.erro_app = ""
+
             st.rerun()
 
         except Exception as e:
             erro = str(e)
 
             if erro_de_cota(e):
-                with col_resultado:
-                    st.warning(
-                        "⏳ Limite temporário ou diário da API Gemini atingido nos modelos disponíveis. "
-                        "Aguarde a renovação da cota ou habilite faturamento no Google AI Studio."
-                    )
-
-                    with st.expander("Mostrar erro técnico"):
-                        st.code(erro)
+                st.session_state.erro_app = (
+                    "⏳ Limite temporário ou diário da API Gemini atingido nos modelos disponíveis. "
+                    "Aguarde a renovação da cota ou habilite faturamento no Google AI Studio."
+                )
 
             elif "priorizacao.txt" in erro:
-                with col_resultado:
-                    st.error(
-                        "❌ Arquivo prompts/priorizacao.txt não encontrado. "
-                        "Verifique se a pasta prompts está no GitHub."
-                    )
+                st.session_state.erro_app = (
+                    "❌ Arquivo prompts/priorizacao.txt não encontrado. "
+                    "Verifique se a pasta prompts está no GitHub."
+                )
 
             elif (
                 "api key" in erro.lower()
@@ -442,18 +622,12 @@ if analisar:
                 or "permission" in erro.lower()
                 or "unauthorized" in erro.lower()
             ):
-                with col_resultado:
-                    st.error(
-                        "❌ Problema na chave da API Gemini. "
-                        "Verifique se GEMINI_API_KEY está correta nos Secrets do Streamlit."
-                    )
-
-                    with st.expander("Mostrar erro técnico"):
-                        st.code(erro)
+                st.session_state.erro_app = (
+                    "❌ Problema na chave da API Gemini. "
+                    "Verifique se GEMINI_API_KEY está correta nos Secrets do Streamlit."
+                )
 
             else:
-                with col_resultado:
-                    st.error("❌ Ocorreu um erro inesperado.")
+                st.session_state.erro_app = f"❌ Ocorreu um erro inesperado: {erro}"
 
-                    with st.expander("Mostrar erro técnico"):
-                        st.code(erro)
+            st.rerun()
