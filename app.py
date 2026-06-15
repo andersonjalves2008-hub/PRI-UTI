@@ -317,7 +317,7 @@ with col_caso:
 
     caso = st.text_area(
         label="",
-        height=420,
+        height=300,
         key="caso",
         label_visibility="collapsed"
     )
