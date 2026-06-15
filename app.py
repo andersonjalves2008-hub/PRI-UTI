@@ -343,30 +343,27 @@ with col_resultado:
 
     if st.session_state.resposta:
 
-        resposta_html = (
+        resposta_formatada = (
             st.session_state.resposta
-            .replace("PRIORIDADE:", "<strong style='font-size:24px;'>PRIORIDADE:</strong>")
-            .replace(
-                "JUSTIFICATIVA:",
-                "<br><br><strong style='font-size:20px;'>JUSTIFICATIVA:</strong>"
-            )
+            .replace("PRIORIDADE:", "PRIORIDADE:")
+            .replace("JUSTIFICATIVA:", "\nJUSTIFICATIVA:")
         )
 
         st.markdown(
             f"""
-            <div style="
-                border:1px solid #3b82f6;
-                border-radius:10px;
-                padding:10px 18px 18px 18px;
-                min-height:300px;
-                background-color:rgba(59,130,246,0.05);
-                font-size:18px;
-                line-height:1.8;
-                white-space:pre-wrap;
-            ">
-            {resposta_html}
-            </div>
-            """,
+<div style="
+border:1px solid #3b82f6;
+border-radius:10px;
+padding:14px 16px;
+min-height:420px;
+background-color:rgba(59,130,246,0.05);
+font-size:17px;
+line-height:1.6;
+white-space:pre-wrap;
+">
+{resposta_formatada}
+</div>
+""",
             unsafe_allow_html=True
         )
 
@@ -378,24 +375,22 @@ with col_resultado:
 
         st.markdown(
             """
-            <div style="
-                border:1px solid #444;
-                border-radius:10px;
-                padding:18px;
-                min-height:300px;
-                background-color:rgba(120,120,120,0.05);
-                display:flex;
-                align-items:center;
-                justify-content:center;
-                color:gray;
-                font-size:18px;
-            ">
-                O resultado da análise aparecerá aqui.
-            </div>
-            """,
+<div style="
+border:1px solid #444;
+border-radius:10px;
+padding:14px 16px;
+min-height:420px;
+background-color:rgba(120,120,120,0.05);
+color:gray;
+font-size:17px;
+line-height:1.6;
+white-space:pre-wrap;
+">
+O resultado da análise aparecerá aqui.
+</div>
+""",
             unsafe_allow_html=True
         )
-
 
 # =========================================================
 # ANÁLISE
